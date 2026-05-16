@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model ProfilContent {
+  id           String   @id @default(cuid())
+  title        String?
+  deskripsi    String?
+  visi         String?
+  misi         String[]   // ✅ BOLEH di PostgreSQL
+  tugasFungsi  String?
+  profileImage String?
+  updatedAt    DateTime @default(now()) @updatedAt
+}
+
+model SambutanContent {
+  id        String   @id @default(cuid())
+  fotoUrl   String
+  nama      String
+  jabatan   String
+  sambutan  String
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Article {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   // Text content
+  imageUrl  String?  // Main photo URL
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Pejabat {
+  id        String   @id @default(cuid())
+  nama      String
+  jabatan   String
+  fotoUrl   String?
+  urutan    Int      @default(0) // Untuk mengatur urutan tampilan
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LayananContent {
+  id        String   @id @default(cuid())
+  title     String
+  deskripsi String
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model LayananItem {
+  id        String   @id @default(cuid())
+  title     String
+  deskripsi String?
+  fotoUrl   String
+  type      String   // 'integrasi' atau 'kunjungan'
+  urutan    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model KegiatanContent {
+  id        String   @id @default(cuid())
+  kategori  String   @unique  // perikanan | pertanian | pendidikan | keagamaan | kewirausahaan
+  title     String
+  deskripsi String
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model KegiatanItem {
+  id        String   @id @default(cuid())
+  kategori  String   // perikanan | pertanian | pendidikan | keagamaan | kewirausahaan
+  title     String
+  deskripsi String?
+  imageUrl  String
+  imageUrls String[] @default([])
+  urutan    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// LPKASHOP (MARKETPLACE) MODELS
+// ==========================================
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Product {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  stock       Int            @default(0)
+  imageUrl    String? // Keep as thumbnail
+  media       ProductMedia[]
+  shopeeUrl   String?
+  categoryId  String
+  category    Category       @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ProductMedia {
+  id        String    @id @default(cuid())
+  url       String
+  type      MediaType @default(IMAGE)
+  productId String
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+}
+
+model ContactSettings {
+  id             String   @id @default(cuid())
+  email          String   @default("lpkatangerang1@gmail.com")
+  whatsappNumber String   @default("6281386241976")
+  instagram      String?
+  facebook       String?
+  twitter        String?
+  tiktok         String?
+  updatedAt      DateTime @updatedAt
+}
